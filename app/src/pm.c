@@ -17,6 +17,14 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <zmk/endpoints.h>
 
+#if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW)
+#include <zmk/rgb_underglow.h>
+#endif
+
+#if IS_ENABLED(CONFIG_ZMK_EXT_POWER)
+#include <drivers/ext_power.h>
+#endif
+
 // Reimplement some of the device work from Zephyr PM to work with the new `sys_poweroff` API.
 // TODO: Tweak this to smarter runtime PM of subsystems on sleep.
 
@@ -88,6 +96,19 @@ const struct device *soft_off_wakeup_sources[] = {
 #endif
 
 int zmk_pm_soft_off(void) {
+    /* Turn off RGB underglow first - this ensures LEDs are off even on USB power */
+#if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW)
+    zmk_rgb_underglow_off();
+#endif
+
+    /* Disable external power (LED power rail) */
+#if IS_ENABLED(CONFIG_ZMK_EXT_POWER)
+    const struct device *ext_power_dev = DEVICE_DT_GET(DT_INST(0, zmk_ext_power_generic));
+    if (device_is_ready(ext_power_dev)) {
+        ext_power_disable(ext_power_dev);
+    }
+#endif
+
 #if IS_ENABLED(CONFIG_PM_DEVICE)
     size_t device_count;
     const struct device *devs;

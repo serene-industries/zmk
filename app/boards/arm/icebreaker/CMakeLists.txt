@@ -1,0 +1,5 @@
+# SPDX-License-Identifier: MIT
+
+if(CONFIG_ZMK_BLE)
+  target_sources(app PRIVATE bt_indicator.c)
+endif()

@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+
+if BOARD_ICEBREAKER
+
+config BOARD
+	default "icebreaker"
+
+config ZMK_KEYBOARD_NAME
+	default "Icebreaker"
+
+if USB_DEVICE_STACK
+
+config USB_NRFX
+	default y
+
+endif # USB_DEVICE_STACK
+
+config BT_CTLR
+	default BT
+
+endif # BOARD_ICEBREAKER

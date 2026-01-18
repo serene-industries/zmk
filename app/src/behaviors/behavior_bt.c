@@ -18,6 +18,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <zmk/ble.h>
 
+/* Weak stub - overridden by board-specific bt_indicator.c if present */
+void __attribute__((weak)) bt_indicator_show_clear(void) {}
+
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
 
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
@@ -93,6 +96,7 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
     switch (binding->param1) {
     case BT_CLR_CMD:
         zmk_ble_clear_bonds();
+        bt_indicator_show_clear();
         return 0;
     case BT_NXT_CMD:
         return zmk_ble_prof_next();
@@ -102,6 +106,7 @@ static int on_keymap_binding_pressed(struct zmk_behavior_binding *binding,
         return zmk_ble_prof_select(binding->param2);
     case BT_CLR_ALL_CMD:
         zmk_ble_clear_all_bonds();
+        bt_indicator_show_clear();
         return 0;
     case BT_DISC_CMD:
         return zmk_ble_prof_disconnect(binding->param2);
