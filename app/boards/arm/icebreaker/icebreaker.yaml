@@ -1,5 +1,5 @@
 identifier: icebreaker
-name: Icebreaker Keyboard
+name: icebreaker
 type: mcu
 arch: arm
 toolchain:
@@ -13,4 +13,3 @@ supported:
   - ieee802154
   - pwm
   - watchdog
-  - i2c

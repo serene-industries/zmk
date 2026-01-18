@@ -1,21 +1,42 @@
+# Copyright (c) 2020 The ZMK Contributors
 # SPDX-License-Identifier: MIT
 
 if BOARD_ICEBREAKER
 
-config BOARD
-	default "icebreaker"
-
 config ZMK_KEYBOARD_NAME
-	default "Icebreaker"
+	default "Icebreaker Wireless"
 
-if USB_DEVICE_STACK
+# Enable HWINFO for unique device identification (last 4 hex of serial)
+config HWINFO
+	default y
+
+# Increase max BT device name to fit "Icebreaker Wireless XXXX" (24 chars)
+config BT_DEVICE_NAME_MAX
+	default 28
 
 config USB_NRFX
 	default y
 
-endif # USB_DEVICE_STACK
+config USB_DEVICE_STACK
+	default y
 
 config BT_CTLR
 	default BT
+
+config ZMK_BLE
+	default y
+
+config ZMK_USB
+	default y
+
+config I2C
+	default y
+
+config MAX17048
+	default y
+
+# ZMK Studio defaults
+config ZMK_STUDIO_LOCKING
+	default y
 
 endif # BOARD_ICEBREAKER
