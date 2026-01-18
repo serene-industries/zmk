@@ -75,6 +75,5 @@ CONFIG_ZMK_RGB_UNDERGLOW_BRT_STEP=3
 # Start at ~20% actual brightness (63 maps to 20% in the 1-31 range)
 CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=63
 
-# Logging disabled (would need RTT or UART)
-# CONFIG_LOG=y
+# Logging disabled
 # CONFIG_ZMK_USB_LOGGING=y
