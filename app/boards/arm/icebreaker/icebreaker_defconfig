@@ -50,11 +50,16 @@ CONFIG_ZMK_USB=y
 # Enable BLE
 CONFIG_ZMK_BLE=y
 
+# Enable dynamic BT name and increase max for serial suffix "Icebreaker Wireless XXXX"
+CONFIG_BT_DEVICE_NAME_DYNAMIC=y
+CONFIG_BT_DEVICE_NAME_MAX=28
+
 # Windows Battery Reporting Fix
 CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n
 
-# Enable ZMK Studio support
+# Enable ZMK Studio support (locking disabled for easy access)
 CONFIG_ZMK_STUDIO=y
+CONFIG_ZMK_STUDIO_LOCKING=n
 
 # Enable RGB underglow
 CONFIG_ZMK_RGB_UNDERGLOW=y
@@ -72,8 +77,8 @@ CONFIG_ZMK_RGB_UNDERGLOW_BRT_MAX=31
 CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN=1
 # Smaller step increments (default is 10)
 CONFIG_ZMK_RGB_UNDERGLOW_BRT_STEP=3
-# Start at ~20% actual brightness (63 maps to 20% in the 1-31 range)
-CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=63
+# Start at 20% brightness
+CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=20
 
 # Logging disabled
 # CONFIG_ZMK_USB_LOGGING=y
