@@ -32,10 +32,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define BLINK_OFF_MS 200
 #define BLINK_END_PAUSE_MS 800
 
-/* Fast flash for clear indication - made slower and longer for visibility */
-#define CLEAR_FLASH_ON_MS 150
-#define CLEAR_FLASH_OFF_MS 150
-#define CLEAR_FLASH_COUNT 8
+/* Fast flash for clear indication - quick burst pattern */
+#define CLEAR_FLASH_ON_MS 80
+#define CLEAR_FLASH_OFF_MS 80
+#define CLEAR_FLASH_COUNT 5
 
 static const struct device *gpio_dev;
 static struct k_work_delayable indicator_work;
