@@ -255,6 +255,16 @@ zephyr_udc0: &usbd {
 		group1 {
 			psels = <NRF_PSEL(SPIM_MOSI, 0, 13)>;
 			low-power-enable;
+			/*
+			 * Hold the WS2812 data line (LED_LV = P0.13) low while
+			 * asleep. Without this the pin floats once SPI3 suspends;
+			 * on deep-sleep entry the LED power rail (P1.10) is cut but
+			 * the floating data line back-feeds the first LED's DIN
+			 * through its protection diode, parasitically lighting the
+			 * ESC key (LED #0) a random, flickering color. Pulling the
+			 * line low prevents that injection.
+			 */
+			bias-pull-down;
 		};
 	};
 };
