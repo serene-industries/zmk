@@ -37,21 +37,25 @@ static struct zmk_rpc_subsystem *find_subsystem_for_choice(uint8_t choice) {
 zmk_studio_Response zmk_rpc_subsystem_delegate_to_subs(const struct zmk_rpc_subsystem *subsys,
                                                        const zmk_studio_Request *req,
                                                        uint8_t which_req) {
-    LOG_DBG("Got subsystem func for %d", subsys->subsystem_choice);
+    LOG_INF("RPC delegate: subsys=%d which_req=%d start=%d end=%d",
+            subsys->subsystem_choice, which_req,
+            subsys->handlers_start_index, subsys->handlers_end_index);
 
     for (int i = subsys->handlers_start_index; i <= subsys->handlers_end_index; i++) {
         struct zmk_rpc_subsystem_handler *sub_handler;
         STRUCT_SECTION_GET(zmk_rpc_subsystem_handler, i, &sub_handler);
+        LOG_INF("  handler[%d]: subsys=%d req=%d", i, sub_handler->subsystem_choice, sub_handler->request_choice);
         if (sub_handler->request_choice == which_req) {
             if (sub_handler->security == ZMK_STUDIO_RPC_HANDLER_SECURED &&
                 zmk_studio_core_get_lock_state() != ZMK_STUDIO_CORE_LOCK_STATE_UNLOCKED) {
                 return ZMK_RPC_RESPONSE(meta, simple_error,
                                         zmk_meta_ErrorConditions_UNLOCK_REQUIRED);
             }
+            LOG_INF("  -> matched handler[%d]", i);
             return sub_handler->func(req);
         }
     }
-    LOG_ERR("No handler func found for %d", which_req);
+    LOG_ERR("No handler func found for which_req=%d in subsystem=%d", which_req, subsys->subsystem_choice);
     return ZMK_RPC_RESPONSE(meta, simple_error, zmk_meta_ErrorConditions_RPC_NOT_FOUND);
 }
 
@@ -304,6 +308,12 @@ static int zmk_rpc_init(void) {
 
     if (prev_sub) {
         prev_sub->handlers_end_index = i - 1;
+    }
+
+    // Debug: log all subsystem handler ranges
+    LOG_INF("RPC init: total handlers=%d", i);
+    STRUCT_SECTION_FOREACH(zmk_rpc_subsystem, sub) {
+        LOG_INF("Subsystem %d: handlers %d-%d", sub->subsystem_choice, sub->handlers_start_index, sub->handlers_end_index);
     }
 
     refresh_selected_transport();

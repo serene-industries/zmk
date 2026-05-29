@@ -49,6 +49,11 @@ enum rgb_underglow_effect {
     UNDERGLOW_EFFECT_BREATHE,
     UNDERGLOW_EFFECT_SPECTRUM,
     UNDERGLOW_EFFECT_SWIRL,
+    UNDERGLOW_EFFECT_RAINBOW_WAVE,
+    UNDERGLOW_EFFECT_KNIGHT,
+    UNDERGLOW_EFFECT_SPARKLE,
+    UNDERGLOW_EFFECT_HUE_WAVE,
+    UNDERGLOW_EFFECT_RAINDROPS,
     UNDERGLOW_EFFECT_NUMBER // Used to track number of underglow effects
 };
 
@@ -139,7 +144,10 @@ static void zmk_rgb_underglow_effect_solid(void) {
 static void zmk_rgb_underglow_effect_breathe(void) {
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         struct zmk_led_hsb hsb = state.color;
-        hsb.b = abs(state.animation_step - 1200) / 12;
+        // Calculate breathe factor (0-100) from animation step
+        uint8_t breathe_factor = abs(state.animation_step - 1200) / 12;
+        // Scale by the configured brightness so max brightness respects user setting
+        hsb.b = (state.color.b * breathe_factor) / 100;
 
         pixels[i] = hsb_to_rgb(hsb_scale_zero_max(hsb));
     }
@@ -175,6 +183,149 @@ static void zmk_rgb_underglow_effect_swirl(void) {
     state.animation_step = state.animation_step % HUE_MAX;
 }
 
+static void zmk_rgb_underglow_effect_rainbow_wave(void) {
+    // Rainbow colors flowing across the strip like a wave
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        struct zmk_led_hsb hsb = state.color;
+        // Each LED gets a different hue based on position and animation step
+        hsb.h = (i * HUE_MAX / STRIP_NUM_PIXELS + state.animation_step) % HUE_MAX;
+        hsb.s = 100; // Full saturation for rainbow
+
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(hsb));
+    }
+
+    state.animation_step += state.animation_speed;
+    state.animation_step = state.animation_step % HUE_MAX;
+}
+
+static void zmk_rgb_underglow_effect_knight(void) {
+    // Knight Rider / KITT scanner effect - a bright spot moves back and forth
+    int pos = state.animation_step % (STRIP_NUM_PIXELS * 2);
+    if (pos >= STRIP_NUM_PIXELS) {
+        pos = (STRIP_NUM_PIXELS * 2) - pos - 1; // Reverse direction
+    }
+
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        struct zmk_led_hsb hsb = state.color;
+        int distance = abs(i - pos);
+
+        // Tail effect: brightness decreases with distance from center
+        if (distance == 0) {
+            // Center - full brightness
+        } else if (distance == 1) {
+            hsb.b = hsb.b * 60 / 100;
+        } else if (distance == 2) {
+            hsb.b = hsb.b * 30 / 100;
+        } else if (distance == 3) {
+            hsb.b = hsb.b * 10 / 100;
+        } else {
+            hsb.b = 0;
+        }
+
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(hsb));
+    }
+
+    state.animation_step += state.animation_speed;
+    if (state.animation_step >= STRIP_NUM_PIXELS * 2) {
+        state.animation_step = 0;
+    }
+}
+
+static void zmk_rgb_underglow_effect_sparkle(void) {
+    // Random sparkle effect - random LEDs flash brighter
+    static uint16_t sparkle_seed = 12345;
+
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        struct zmk_led_hsb hsb = state.color;
+
+        // Simple pseudo-random based on position, time, and seed
+        sparkle_seed = (sparkle_seed * 31337 + state.animation_step + i) & 0xFFFF;
+        uint8_t rand_val = (sparkle_seed >> 8) & 0xFF;
+
+        // 10% chance of sparkle (rand < 25 out of 255)
+        if (rand_val < 25) {
+            // Sparkle at full brightness
+        } else {
+            // Dim background
+            hsb.b = hsb.b * 20 / 100;
+        }
+
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(hsb));
+    }
+
+    state.animation_step += state.animation_speed * 5;
+    if (state.animation_step > 10000) {
+        state.animation_step = 0;
+    }
+}
+
+static void zmk_rgb_underglow_effect_hue_wave(void) {
+    // Hue Wave - hue ripples across the strip like a wave
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        struct zmk_led_hsb hsb = state.color;
+        // Create a wave pattern where hue varies by position and time
+        // Using sine-like approximation with triangle wave
+        int wave_pos = (state.animation_step + i * 30) % 120;
+        int hue_offset;
+        if (wave_pos < 60) {
+            hue_offset = wave_pos;
+        } else {
+            hue_offset = 120 - wave_pos;
+        }
+        hsb.h = (state.color.h + hue_offset) % HUE_MAX;
+
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(hsb));
+    }
+
+    state.animation_step += state.animation_speed;
+    if (state.animation_step > 10000) {
+        state.animation_step = 0;
+    }
+}
+
+// Raindrop state for fade effect
+static uint8_t raindrop_brightness[64]; // Max 64 LEDs supported
+static uint8_t raindrop_initialized = 0;
+
+static void zmk_rgb_underglow_effect_raindrops(void) {
+    // Raindrops - random LEDs light up and fade out
+    static uint16_t rain_seed = 54321;
+
+    if (!raindrop_initialized) {
+        for (int i = 0; i < STRIP_NUM_PIXELS && i < 64; i++) {
+            raindrop_brightness[i] = 0;
+        }
+        raindrop_initialized = 1;
+    }
+
+    // Randomly light up new drops
+    rain_seed = (rain_seed * 31337 + state.animation_step) & 0xFFFF;
+    if ((rain_seed & 0xFF) < 15) { // ~6% chance per tick
+        int drop_pos = (rain_seed >> 8) % STRIP_NUM_PIXELS;
+        if (drop_pos < 64) {
+            raindrop_brightness[drop_pos] = 100;
+        }
+    }
+
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        struct zmk_led_hsb hsb = state.color;
+
+        if (i < 64) {
+            hsb.b = (state.color.b * raindrop_brightness[i]) / 100;
+            // Fade out
+            if (raindrop_brightness[i] > 0) {
+                raindrop_brightness[i] = raindrop_brightness[i] > 5 ? raindrop_brightness[i] - 5 : 0;
+            }
+        } else {
+            hsb.b = 0;
+        }
+
+        pixels[i] = hsb_to_rgb(hsb_scale_min_max(hsb));
+    }
+
+    state.animation_step += state.animation_speed;
+}
+
 static void zmk_rgb_underglow_tick(struct k_work *work) {
     switch (state.current_effect) {
     case UNDERGLOW_EFFECT_SOLID:
@@ -188,6 +339,21 @@ static void zmk_rgb_underglow_tick(struct k_work *work) {
         break;
     case UNDERGLOW_EFFECT_SWIRL:
         zmk_rgb_underglow_effect_swirl();
+        break;
+    case UNDERGLOW_EFFECT_RAINBOW_WAVE:
+        zmk_rgb_underglow_effect_rainbow_wave();
+        break;
+    case UNDERGLOW_EFFECT_KNIGHT:
+        zmk_rgb_underglow_effect_knight();
+        break;
+    case UNDERGLOW_EFFECT_SPARKLE:
+        zmk_rgb_underglow_effect_sparkle();
+        break;
+    case UNDERGLOW_EFFECT_HUE_WAVE:
+        zmk_rgb_underglow_effect_hue_wave();
+        break;
+    case UNDERGLOW_EFFECT_RAINDROPS:
+        zmk_rgb_underglow_effect_raindrops();
         break;
     }
 
@@ -494,6 +660,22 @@ int zmk_rgb_underglow_change_spd(int direction) {
     if (state.animation_speed > 5) {
         state.animation_speed = 5;
     }
+
+    return zmk_rgb_underglow_save_state();
+}
+
+int zmk_rgb_underglow_set_spd(uint8_t speed) {
+    if (!led_strip)
+        return -ENODEV;
+
+    // Clamp speed to valid range (1-5)
+    if (speed < 1) {
+        speed = 1;
+    } else if (speed > 5) {
+        speed = 5;
+    }
+
+    state.animation_speed = speed;
 
     return zmk_rgb_underglow_save_state();
 }
