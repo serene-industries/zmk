@@ -88,5 +88,5 @@ CONFIG_ZMK_RGB_UNDERGLOW_BRT_STEP=3
 # Start at 20% brightness
 CONFIG_ZMK_RGB_UNDERGLOW_BRT_START=20
 
-# Logging disabled
+# Logging disabled (USB logging requires console overlay)
 # CONFIG_ZMK_USB_LOGGING=y

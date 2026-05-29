@@ -67,6 +67,15 @@ zmk_studio_Response set_rgb_state(const zmk_studio_Request *req) {
         LOG_ERR("Failed to set RGB effect: %d", ret);
     }
 
+    // Set speed (UI sends 0-100, firmware uses 1-5)
+    // Map: 0-20 -> 1, 21-40 -> 2, 41-60 -> 3, 61-80 -> 4, 81-100 -> 5
+    uint8_t fw_speed = (state->speed / 20) + 1;
+    if (fw_speed > 5) fw_speed = 5;
+    ret = zmk_rgb_underglow_set_spd(fw_speed);
+    if (ret < 0) {
+        LOG_ERR("Failed to set RGB speed: %d", ret);
+    }
+
     // Set on/off state
     if (state->on) {
         zmk_rgb_underglow_on();
