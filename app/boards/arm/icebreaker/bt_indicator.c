@@ -17,6 +17,8 @@
 #include <zmk/ble.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/ble_active_profile_changed.h>
+#include <zmk/activity.h>
+#include <zmk/events/activity_state_changed.h>
 
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -181,6 +183,33 @@ static int bt_indicator_listener(const zmk_event_t *eh) {
 
 ZMK_LISTENER(bt_indicator, bt_indicator_listener);
 ZMK_SUBSCRIPTION(bt_indicator, zmk_ble_active_profile_changed);
+
+/* Turn the status LEDs off while the keyboard is idle or asleep. Without this
+ * the blue LED_BOOT "connected" light stays lit 24/7, and on deep sleep the
+ * GPIO latches its last (on) state, leaving it lit while asleep and draining
+ * the battery. Restore the connection indicator when activity resumes. */
+static int bt_indicator_activity_listener(const zmk_event_t *eh) {
+    const struct zmk_activity_state_changed *ev = as_zmk_activity_state_changed(eh);
+
+    if (!ev || !gpio_dev) {
+        return ZMK_EV_EVENT_BUBBLE;
+    }
+
+    if (ev->state == ZMK_ACTIVITY_ACTIVE) {
+        /* Back to active - restore the BT connection indicator. */
+        set_led_boot(is_connected);
+    } else {
+        /* IDLE or SLEEP - cancel any in-flight blink and go dark. */
+        k_work_cancel_delayable(&indicator_work);
+        set_led_con(false);
+        set_led_boot(false);
+    }
+
+    return ZMK_EV_EVENT_BUBBLE;
+}
+
+ZMK_LISTENER(bt_indicator_activity, bt_indicator_activity_listener);
+ZMK_SUBSCRIPTION(bt_indicator_activity, zmk_activity_state_changed);
 
 static int bt_indicator_init(void) {
     gpio_dev = DEVICE_DT_GET(LED_CON_NODE);
