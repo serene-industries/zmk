@@ -1,0 +1,8 @@
+# Copyright (c) 2026 Serene Industries
+# SPDX-License-Identifier: MIT
+
+description: Dynamic macro behavior - plays a macro stored on the keyboard (slot index as parameter)
+
+compatible: "zmk,behavior-dynamic-macro"
+
+include: one_param.yaml

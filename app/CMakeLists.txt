@@ -55,6 +55,7 @@ if ((NOT CONFIG_ZMK_SPLIT) OR CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
   target_sources(app PRIVATE src/behaviors/behavior_caps_word.c)
   target_sources(app PRIVATE src/behaviors/behavior_key_repeat.c)
   target_sources_ifdef(CONFIG_ZMK_BEHAVIOR_MACRO app PRIVATE src/behaviors/behavior_macro.c)
+  target_sources_ifdef(CONFIG_ZMK_BEHAVIOR_DYNAMIC_MACRO app PRIVATE src/dynamic_macros.c src/behaviors/behavior_dynamic_macro.c)
   target_sources(app PRIVATE src/behaviors/behavior_momentary_layer.c)
   target_sources(app PRIVATE src/behaviors/behavior_mod_morph.c)
   target_sources(app PRIVATE src/behaviors/behavior_outputs.c)
@@ -119,15 +120,16 @@ if (CONFIG_ZMK_STUDIO_RPC)
     # Turn off the default nanopb behavior
   set(NANOPB_GENERATE_CPP_STANDALONE OFF)
 
-  nanopb_generate_cpp(proto_srcs proto_hdrs RELPATH ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/studio.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/meta.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/core.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/behaviors.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/keymap.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/lighting.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/ble.proto
-                        ${ZEPHYR_ZMK_STUDIO_MESSAGES_MODULE_DIR}/proto/zmk/stats.proto
+  nanopb_generate_cpp(proto_srcs proto_hdrs RELPATH ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/studio.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/meta.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/core.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/behaviors.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/keymap.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/lighting.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/ble.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/stats.proto
+                        ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/macros.proto
   )
 
   target_include_directories(app PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

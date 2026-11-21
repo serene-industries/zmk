@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package zmk.ble;
+
+// Simplified BLE state - flat structure for embedded nanopb compatibility
+// Profile details are kept minimal to avoid callbacks
+message BleState {
+    uint32 active_profile = 1;  // Currently active profile index (0-4)
+    bool connected = 2;         // Is active profile connected
+    uint32 profile_count = 3;   // Number of profiles available (typically 5)
+
+    // Per-profile connection status (up to 5 profiles)
+    // true = connected, false = not connected
+    bool profile0_connected = 10;
+    bool profile1_connected = 11;
+    bool profile2_connected = 12;
+    bool profile3_connected = 13;
+    bool profile4_connected = 14;
+
+    // Per-profile open status (available for new pairing)
+    bool profile0_open = 20;
+    bool profile1_open = 21;
+    bool profile2_open = 22;
+    bool profile3_open = 23;
+    bool profile4_open = 24;
+}
+
+message Request {
+    oneof request_type {
+        bool get_ble_state = 1;      // Get current BLE state
+        uint32 select_profile = 2;   // Switch to profile index (0-4)
+        bool clear_profile = 3;      // Clear current profile pairing
+        bool clear_all_profiles = 4; // Clear all profile pairings (DANGEROUS)
+    }
+}
+
+message Response {
+    oneof response_type {
+        BleState get_ble_state = 1;
+        bool select_profile = 2;     // true = success
+        bool clear_profile = 3;      // true = success
+        bool clear_all_profiles = 4; // true = success
+    }
+}
+
+message Notification {
+    oneof notification_type {
+        BleState ble_state_changed = 1;  // BLE state changed (profile switch, connection change)
+    }
+}

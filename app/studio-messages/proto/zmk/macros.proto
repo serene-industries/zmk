@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package zmk.macros;
+
+// Dynamic macros: sequences stored on the keyboard at runtime and played by
+// the `dmacro` behavior (&dmacro N). Steps use ZMK's encoded keycodes
+// (HID usage page/id with modifier bits), the same values `&kp` takes.
+
+message Step {
+    uint32 action = 1; // 0 = tap, 1 = press, 2 = release, 3 = wait (param = ms)
+    uint32 param = 2;  // keycode for tap/press/release, milliseconds for wait
+}
+
+message Macro {
+    uint32 index = 1;
+    repeated Step steps = 2;
+}
+
+message Info {
+    uint32 count = 1;     // number of macro slots
+    uint32 max_steps = 2; // steps per slot
+}
+
+message Request {
+    oneof request_type {
+        bool get_info = 1;
+        uint32 get_macro = 2;   // slot index
+        Macro set_macro = 3;
+        uint32 clear_macro = 4; // slot index
+    }
+}
+
+message Response {
+    oneof response_type {
+        Info get_info = 1;
+        Macro get_macro = 2;
+        bool set_macro = 3;
+        bool clear_macro = 4;
+    }
+}

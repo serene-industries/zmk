@@ -15,6 +15,7 @@ target_sources(app PRIVATE core_subsystem.c)
 target_sources(app PRIVATE keymap_subsystem.c)
 target_sources_ifdef(CONFIG_ZMK_RGB_UNDERGLOW app PRIVATE lighting_subsystem.c)
 target_sources_ifdef(CONFIG_ZMK_BLE app PRIVATE ble_subsystem.c)
+target_sources_ifdef(CONFIG_ZMK_BEHAVIOR_DYNAMIC_MACRO app PRIVATE macros_subsystem.c)
 # NOTE: stats_subsystem.c is added in main CMakeLists.txt (before combo.c) for correct event ordering
 target_sources_ifdef(CONFIG_ZMK_STUDIO_TRANSPORT_UART app PRIVATE uart_rpc_transport.c)
 target_sources_ifdef(CONFIG_ZMK_STUDIO_TRANSPORT_BLE app PRIVATE gatt_rpc_transport.c)

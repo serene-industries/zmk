@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2026 Serene Industries
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
+/ {
+    behaviors {
+        /omit-if-no-ref/ dmacro: dynamic_macro {
+            compatible = "zmk,behavior-dynamic-macro";
+            #binding-cells = <1>;
+            display-name = "Macro";
+        };
+    };
+};

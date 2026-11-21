@@ -35,11 +35,5 @@ manifest:
       revision: 8c60555d6277a0360c876bd85d491fc4fb0cd74a
       path: modules/lib/nanopb
       remote: zmkfirmware
-    # Serene fork of zmk-studio-messages: adds custom lighting/ble/stats protos
-    # required by the icebreaker Studio subsystems. Was upstream zmkfirmware.
-    - name: zmk-studio-messages
-      revision: 6539cbf2c1fc59ebd164181d78af4d6eebd71646
-      path: modules/msgs/zmk-studio-messages
-      remote: serene-industries
   self:
     west-commands: scripts/west-commands.yml

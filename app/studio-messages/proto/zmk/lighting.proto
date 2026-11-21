@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package zmk.lighting;
+
+// RGB underglow state
+message RgbState {
+    bool on = 1;
+    uint32 hue = 2;        // 0-359
+    uint32 saturation = 3; // 0-100
+    uint32 brightness = 4; // 0-100
+    uint32 effect = 5;     // 0=solid, 1=breathe, 2=spectrum, 3=swirl
+    uint32 speed = 6;      // 0-100
+}
+
+message Request {
+    oneof request_type {
+        bool get_rgb_state = 1;
+        RgbState set_rgb_state = 2;
+    }
+}
+
+message Response {
+    oneof response_type {
+        RgbState get_rgb_state = 1;
+        bool set_rgb_state = 2;
+    }
+}
+
+message Notification {
+    oneof notification_type {
+        RgbState rgb_state_changed = 1;  // RGB state changed
+    }
+}

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package zmk.stats;
+
+// Keyboard usage statistics
+message Stats {
+    uint64 total_keypresses = 1;    // Total keypresses since first use
+    uint32 uptime_seconds = 2;      // Current session uptime in seconds
+    uint32 battery_level = 3;       // Battery percentage (0-100), 255 = not available
+    uint32 wpm = 4;                 // Current words per minute
+}
+
+message Request {
+    oneof request_type {
+        bool get_stats = 1;         // Get current statistics
+        bool reset_stats = 2;       // Reset all statistics (DANGEROUS)
+    }
+}
+
+message Response {
+    oneof response_type {
+        Stats get_stats = 1;
+        bool reset_stats = 2;       // true = success
+    }
+}
+
+message Notification {
+    // No notifications for stats (yet)
+}
