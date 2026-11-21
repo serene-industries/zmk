@@ -7,6 +7,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <zephyr/toolchain.h>
 
 #define ZMK_DYN_MACRO_COUNT CONFIG_ZMK_DYNAMIC_MACRO_COUNT
 #define ZMK_DYN_MACRO_MAX_STEPS CONFIG_ZMK_DYNAMIC_MACRO_MAX_STEPS

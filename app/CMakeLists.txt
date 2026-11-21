@@ -120,6 +120,11 @@ if (CONFIG_ZMK_STUDIO_RPC)
     # Turn off the default nanopb behavior
   set(NANOPB_GENERATE_CPP_STANDALONE OFF)
 
+  # macros.options.in needs this even when the dynamic macro behavior is disabled
+  if(NOT CONFIG_ZMK_DYNAMIC_MACRO_MAX_STEPS)
+    set(CONFIG_ZMK_DYNAMIC_MACRO_MAX_STEPS 32)
+  endif()
+
   nanopb_generate_cpp(proto_srcs proto_hdrs RELPATH ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages
                         ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/studio.proto
                         ${CMAKE_CURRENT_SOURCE_DIR}/studio-messages/proto/zmk/meta.proto

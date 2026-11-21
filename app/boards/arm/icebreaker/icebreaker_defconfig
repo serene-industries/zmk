@@ -60,6 +60,9 @@ CONFIG_BT_DEVICE_NAME_MAX=28
 # Windows Battery Reporting Fix
 CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n
 
+# Dynamic macros: a 32-step macro of taps queues 64 behavior events
+CONFIG_ZMK_BEHAVIORS_QUEUE_SIZE=128
+
 # Enable ZMK Studio support (locking disabled for easy access)
 CONFIG_ZMK_STUDIO=y
 CONFIG_ZMK_STUDIO_LOCKING=n

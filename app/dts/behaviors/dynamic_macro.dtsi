@@ -6,7 +6,9 @@
 
 / {
     behaviors {
-        /omit-if-no-ref/ dmacro: dynamic_macro {
+        // No /omit-if-no-ref/: the stock keymap never references &dmacro, but
+        // Studio assigns MC(n) at runtime, so the behavior must always be built.
+        dmacro: dynamic_macro {
             compatible = "zmk,behavior-dynamic-macro";
             #binding-cells = <1>;
             display-name = "Macro";

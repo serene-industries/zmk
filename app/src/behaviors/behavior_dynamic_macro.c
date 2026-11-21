@@ -55,7 +55,7 @@ static int on_dmacro_binding_pressed(struct zmk_behavior_binding *binding,
 
     // Build the key event list first so a WAIT step can extend the delay
     // after the preceding key event (the queue delays *after* each item).
-    struct queued_key keys[ZMK_DYN_MACRO_MAX_STEPS * 2];
+    static struct queued_key keys[ZMK_DYN_MACRO_MAX_STEPS * 2];
     int n = 0;
     for (int i = 0; i < m->count; i++) {
         const struct zmk_dyn_macro_step *s = &m->steps[i];

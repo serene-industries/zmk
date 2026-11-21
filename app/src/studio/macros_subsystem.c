@@ -14,14 +14,14 @@ ZMK_RPC_SUBSYSTEM(macros)
 
 #define MACROS_RESPONSE(type, ...) ZMK_RPC_RESPONSE(macros, type, __VA_ARGS__)
 
-zmk_studio_Response get_info(const zmk_studio_Request *req) {
+static zmk_studio_Response get_info(const zmk_studio_Request *req) {
     zmk_macros_Info info = zmk_macros_Info_init_zero;
     info.count = ZMK_DYN_MACRO_COUNT;
     info.max_steps = ZMK_DYN_MACRO_MAX_STEPS;
     return MACROS_RESPONSE(get_info, info);
 }
 
-zmk_studio_Response get_macro(const zmk_studio_Request *req) {
+static zmk_studio_Response get_macro(const zmk_studio_Request *req) {
     uint32_t index = req->subsystem.macros.request_type.get_macro;
     const struct zmk_dyn_macro *m = zmk_dyn_macro_get(index);
     if (!m) {
@@ -37,7 +37,7 @@ zmk_studio_Response get_macro(const zmk_studio_Request *req) {
     return MACROS_RESPONSE(get_macro, resp);
 }
 
-zmk_studio_Response set_macro(const zmk_studio_Request *req) {
+static zmk_studio_Response set_macro(const zmk_studio_Request *req) {
     const zmk_macros_Macro *in = &req->subsystem.macros.request_type.set_macro;
     if (in->index >= ZMK_DYN_MACRO_COUNT || in->steps_count > ZMK_DYN_MACRO_MAX_STEPS) {
         return MACROS_RESPONSE(set_macro, false);
@@ -52,7 +52,7 @@ zmk_studio_Response set_macro(const zmk_studio_Request *req) {
     return MACROS_RESPONSE(set_macro, ret == 0);
 }
 
-zmk_studio_Response clear_macro(const zmk_studio_Request *req) {
+static zmk_studio_Response clear_macro(const zmk_studio_Request *req) {
     uint32_t index = req->subsystem.macros.request_type.clear_macro;
     return MACROS_RESPONSE(clear_macro, zmk_dyn_macro_clear(index) == 0);
 }
